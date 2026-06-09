@@ -1,0 +1,294 @@
+package sad.storereg.services.appdata;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
+import java.io.FileOutputStream;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.VerticalAlignment;
+
+import lombok.RequiredArgsConstructor;
+import sad.storereg.dto.appdata.PhotoData;
+import sad.storereg.models.appdata.Visitor;
+import sad.storereg.repo.appdata.VisitorRepository;
+
+import org.springframework.core.io.ClassPathResource;
+
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+
+
+@Service
+@RequiredArgsConstructor
+public class PassService {
+	
+	@Value("${passes.dir}")
+    private String baseDir;
+	private final VisitorPhotoService visitorPhotoService;
+	private final VisitorRepository visitorRepository;
+	private final CoreServices coreService;
+
+	@Value("${passes.dir}")
+	private String passesDir;
+	
+	
+	
+	public byte[] generateQrCode(Visitor visitor, Integer size) throws Exception {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
+		String text ="Name:"+visitor.getName()+"\n"+"Visit Date:"+visitor.getVisitDateTime().format(formatter)+"\n"+"Purpose:"+visitor.getPurpose()+", "+visitor.getPurposeDetails()+"\n"+"e-Pass no:"+visitor.getVPassNo()+"\n Building: "+coreService.getOfficeName(visitor.getOfficeCode());
+	    BitMatrix matrix = new QRCodeWriter()
+	            .encode(text, BarcodeFormat.QR_CODE, size, size);
+
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    MatrixToImageWriter.writeToStream(matrix, "PNG", out);
+	    return out.toByteArray();
+	}
+	
+	
+	public byte[] generateVisitorPassPdf(
+	        Visitor visitor, MultipartFile photo1
+	) {
+		try {
+			Path dirPath = Paths.get(passesDir);
+	        Files.createDirectories(dirPath);
+	        
+	        String fileName = visitor.getVPassNo() + ".pdf";
+	        Path filePath = dirPath.resolve(fileName);
+	        
+	        PdfWriter writer = new PdfWriter(Files.newOutputStream(filePath));
+	        PdfDocument pdf = new PdfDocument(writer);
+	        Document document = new Document(pdf, PageSize.A4);
+	        
+	        //document.setMargins(30, 40, 30, 40);
+	        document.setMargins(20, 25, 20, 25);
+	        
+	        byte[] logoBytes = loadLogo();
+
+	        Image logo = new Image(ImageDataFactory.create(logoBytes))
+	                .setWidth(50)
+	                .setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+	        document.add(logo);
+	        
+	        document.add(new Paragraph("GOVERNMENT OF MEGHALAYA")
+	                .setBold()
+	                .setFontSize(11)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .setMarginTop(0)
+	                .setMarginBottom(2));
+
+	        document.add(new Paragraph("SECRETARIAT ADMINISTRATION DEPARTMENT")
+	                .setFontSize(9)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .setMarginTop(0)
+	                .setMarginBottom(2));
+	        
+	        document.add(new Paragraph(coreService.getOfficeName(visitor.getOfficeCode()))
+	                .setFontSize(9)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .setMarginTop(0)
+	                .setMarginBottom(2));
+
+	        document.add(new Paragraph("e-VISITOR PASS No. : " + visitor.getVPassNo())
+	                .setBold()
+	                .setFontSize(9)
+	                .setMarginTop(0)
+	                .setMarginBottom(5)
+	                .setTextAlignment(TextAlignment.CENTER));
+	        
+	        Table mainTable = new Table(new float[]{3, 1}); 
+	        mainTable.setWidth(UnitValue.createPercentValue(100)); 
+	        mainTable.setMarginTop(20); Cell left = new Cell() .setBorder(Border.NO_BORDER) .setPaddingTop(0) .setPaddingBottom(0) .setPaddingLeft(10) .setPaddingRight(10); 
+	        
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a"); 
+	        
+	        left.add(new Paragraph("Applicant's Name : " + visitor.getTitle()+" "+visitor.getName())); 
+	        left.add(new Paragraph("Address : " + visitor.getAddress()+", "+visitor.getState()));
+	        left.add(new Paragraph("Mobile no. : " + visitor.getMobileNo())); 
+	        left.add(new Paragraph("Purpose of Visit : " + visitor.getPurpose()+", "+visitor.getPurposeDetails())); 
+	        left.add(new Paragraph("No. of Visitors : " + visitor.getNoOfVisitors())); 
+	        left.add(new Paragraph("Visit Date & Time : " + visitor.getVisitDateTime().format(formatter) +"  (Valid until: "+visitor.getVisitDateTime()
+	        .plusHours(3)
+	        .format(formatter)+")"));
+	        
+	        byte[] qrCode = generateQrCode(visitor, 150);
+	        //whatsAppService.sendQRCode(generateWhatsappQrCode(visitor, 350), visitor.getVPassNo(),"919774124758");
+	     
+	        Image qrImg = new Image(ImageDataFactory.create(qrCode)) .setWidth(90) .setHorizontalAlignment(HorizontalAlignment.LEFT) .setMarginTop(0); 
+	        left.add(qrImg);
+	        mainTable.addCell(left); 
+	        
+	        Image photoImg = new Image(ImageDataFactory.create(visitorPhotoService.getVisitorPhoto(visitor.getId()).data())) .setWidth(80)  .setAutoScale(true); 
+	        
+	        Cell right = new Cell() .setBorder(Border.NO_BORDER) .setTextAlignment(TextAlignment.CENTER) .setVerticalAlignment(VerticalAlignment.TOP) .add(photoImg); 
+	        mainTable.addCell(right);
+	        document.add(mainTable); 
+	        
+	        document.add(new Paragraph(
+	                "Any QR code scanning application can scan the above QR Code. The URL on the QR Code will allow access to the digital version of this certificate.")
+	                .setFontSize(8)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .setMarginTop(0));
+
+	        
+	        document.close();
+
+	        return Files.readAllBytes(filePath);
+
+	    } catch (Exception e) {
+	        throw new RuntimeException("Error generating visitor pass PDF", e);
+	    }
+	}
+
+	public byte[] generateVisitorPassPdf1(Visitor visitor) {
+	    try {
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+	        PdfWriter writer = new PdfWriter(baos);
+	        PdfDocument pdf = new PdfDocument(writer);
+	        Document document = new Document(pdf, PageSize.A4);
+
+	        document.setMargins(20, 25, 20, 25);
+
+	        byte[] logoBytes = loadLogo();
+
+	        Image logo = new Image(ImageDataFactory.create(logoBytes))
+	                .setWidth(50)
+	                .setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+	        document.add(logo);
+
+	        document.add(new Paragraph("GOVERNMENT OF MEGHALAYA")
+	                .setBold()
+	                .setFontSize(11)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .setMarginBottom(2));
+
+	        document.add(new Paragraph("SECRETARIAT ADMINISTRATION DEPARTMENT")
+	                .setFontSize(9)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .setMarginBottom(2));
+
+	        document.add(new Paragraph(coreService.getOfficeName(visitor.getOfficeCode()))
+	                .setFontSize(9)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .setMarginBottom(2));
+
+	        document.add(new Paragraph("e-VISITOR PASS No. : " + visitor.getVPassNo())
+	                .setBold()
+	                .setFontSize(9)
+	                .setMarginBottom(5)
+	                .setTextAlignment(TextAlignment.CENTER));
+
+	        Table mainTable = new Table(new float[]{3, 1});
+	        mainTable.setWidth(UnitValue.createPercentValue(100));
+	        mainTable.setMarginTop(20);
+
+	        Cell left = new Cell().setBorder(Border.NO_BORDER).setPadding(10);
+
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
+
+	        left.add(new Paragraph("Applicant's Name : " + visitor.getTitle() + " " + visitor.getName()));
+	        left.add(new Paragraph("Address : " + visitor.getAddress() + ", " + visitor.getState()));
+	        left.add(new Paragraph("Mobile no. : " + visitor.getMobileNo()));
+	        left.add(new Paragraph("Purpose of Visit : " + visitor.getPurpose() + ", " + visitor.getPurposeDetails()));
+	        left.add(new Paragraph("No. of Visitors : " + visitor.getNoOfVisitors()));
+	        left.add(new Paragraph("Visit Date & Time : " +
+	                visitor.getVisitDateTime().format(formatter) +
+	                " (Valid until: " +
+	                visitor.getVisitDateTime().plusHours(3).format(formatter) + ")"));
+
+	        byte[] qrCode = generateQrCode(visitor, 150);
+	        Image qrImg = new Image(ImageDataFactory.create(qrCode)).setWidth(90);
+
+	        left.add(qrImg);
+	        mainTable.addCell(left);
+
+	        Image photoImg = new Image(ImageDataFactory.create(
+	                visitorPhotoService.getVisitorPhoto(visitor.getId()).data()))
+	                .setWidth(80);
+
+	        Cell right = new Cell()
+	                .setBorder(Border.NO_BORDER)
+	                .setTextAlignment(TextAlignment.CENTER)
+	                .add(photoImg);
+
+	        mainTable.addCell(right);
+	        document.add(mainTable);
+
+	        document.add(new Paragraph(
+	                "Any QR code scanning application can scan the above QR Code. The URL on the QR Code will allow access to the digital version of this certificate.")
+	                .setFontSize(8)
+	                .setTextAlignment(TextAlignment.CENTER));
+
+	        document.close();
+
+	        return baos.toByteArray();
+
+	    } catch (Exception e) {
+	        throw new RuntimeException("Error generating visitor pass PDF", e);
+	    }
+	}
+	
+	private byte[] loadLogo() {
+	    try {
+	        ClassPathResource resource = new ClassPathResource("meglogo.png");
+	        return resource.getInputStream().readAllBytes();
+	    } catch (Exception e) {
+	        throw new RuntimeException("Unable to load logo image", e);
+	    }
+	}
+
+	
+	public PhotoData getVisitorPassPdf1(Long visitorCode) {
+	    Visitor visitor = visitorRepository.findById(visitorCode)
+	            .orElseThrow(() -> new RuntimeException("Visitor not found"));
+	    Path pdfPath = Paths.get(baseDir, visitor.getVPassNo() + ".pdf");
+
+	    if (!Files.exists(pdfPath)) {
+	        throw new RuntimeException(
+	                "Visitor pass PDF not found for pass no: " + visitor.getVPassNo()
+	        );
+	    }
+
+	    try {
+	        byte[] bytes = Files.readAllBytes(pdfPath);
+	        return new PhotoData(bytes, "application/pdf");
+
+	    } catch (IOException e) {
+	        throw new RuntimeException("Unable to read visitor pass PDF", e);
+	    }
+	}
+
+
+}
