@@ -1,0 +1,248 @@
+package sad.sras.controller.appdata;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+import lombok.RequiredArgsConstructor;
+import sad.sras.annotations.Auditable;
+import sad.sras.dto.appdata.PhotoData;
+import sad.sras.dto.appdata.PurposeStatsDto;
+import sad.sras.dto.appdata.VisitorReportResponse;
+import sad.sras.dto.appdata.VisitorRequestDto;
+import sad.sras.exception.InternalServerError;
+import sad.sras.models.appdata.Visitor;
+import sad.sras.models.auth.User;
+import sad.sras.services.appdata.PassService;
+import sad.sras.services.appdata.ReportService;
+import sad.sras.services.appdata.ReportServiceExcel;
+import sad.sras.services.appdata.VisitorPhotoService;
+import sad.sras.services.appdata.VisitorService;
+
+@RestController
+@RequestMapping("/visitor")
+@RequiredArgsConstructor
+public class VisitorController {
+	
+	private final VisitorService visitorService;
+	private final VisitorPhotoService visitorPhotoService;
+	private final PassService passService;
+	private final ReportService reportService;
+	private final ReportServiceExcel reportServiceExcel;
+	//private final WhatsAppService whatsAppService;
+	
+	@Auditable
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<byte[]> createVisitor(
+	        @Valid @RequestPart("visitor") VisitorRequestDto visitorJson,
+	        @RequestPart("photo") MultipartFile photo,
+	        @AuthenticationPrincipal User user
+	) throws Exception {
+		//ObjectMapper mapper = new ObjectMapper();
+		//mapper.registerModule(new JavaTimeModule());
+	    //VisitorRequestDto visitorDto =
+	   //         mapper.readValue(visitorJson, VisitorRequestDto.class);
+	    //Visitor visitor =visitorService.createVisitor(visitorDto, photo,user.getOfficeCode());
+		Visitor visitor = visitorService.createVisitor(visitorJson, photo, user.getOfficeCode());
+	    //whatsAppService.sendSimpleQrToWhatsApp("919774124758", visitor);
+	    return ResponseEntity.ok()
+	            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + visitor.getVPassNo() + ".pdf")
+	            .contentType(MediaType.APPLICATION_PDF)
+	            .body(passService.generateVisitorPassPdf1(visitor));
+	    //return ResponseEntity.ok("Registered");
+	}
+	
+	@GetMapping
+    public Page<Visitor> getVisitorsByDateRange(
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+ 	        @RequestParam(defaultValue = "10") int size,
+ 	        @RequestParam(defaultValue = "") String search,
+ 	        @RequestParam(required=false) Integer officeCode,
+ 	       @AuthenticationPrincipal User user
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        
+        Integer offCode;
+        if(officeCode==null)
+        	offCode = user.getOfficeCode();
+        else
+        	offCode=officeCode;
+
+        return visitorService.getVisitorsBetweenDates(startDate,endDate,search, offCode, pageable);
+    }
+	
+	@GetMapping("/{visitorCode}/photo")
+    public ResponseEntity<byte[]> getVisitorPhoto(
+            @PathVariable Long visitorCode
+    ) {
+        PhotoData photoData = visitorPhotoService.getVisitorPhoto(visitorCode);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                .contentType(MediaType.parseMediaType(photoData.contentType()))
+                .body(photoData.data());
+    }
+    
+    @GetMapping("/{visitorCode}/pass")
+    public ResponseEntity<byte[]> getVisitorPass(@PathVariable Long visitorCode) {
+        //PhotoData pdfData = passService.getVisitorPassPdf(visitorCode);
+        
+       
+
+        return ResponseEntity.ok()
+                //.contentType(MediaType.parseMediaType(pdfData.contentType()))
+        		.contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=visitor-pass.pdf")
+                //.body(pdfData.data());
+                .body(passService.generateVisitorPassPdf1(visitorService.fetchVisitor(visitorCode)));
+    }
+    
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> generateReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam String format, @RequestParam Integer withPhoto, @RequestParam(required=false) Integer officeCode, @AuthenticationPrincipal User user) throws Exception {
+
+        byte[] fileBytes;
+        String fileName;
+        MediaType mediaType;
+
+        Integer offCode;
+        if(user.getRole().name().equals("SAD"))
+        	offCode = user.getOfficeCode();
+        else
+        	offCode=officeCode;
+        
+        if ("PDF".equalsIgnoreCase(format)) {
+            fileBytes = reportService.generateVisitorReport(startDate, endDate, offCode, withPhoto);
+            fileName = "visitor_report.pdf";
+            mediaType = MediaType.APPLICATION_PDF;
+
+        } else if ("EXCEL".equalsIgnoreCase(format)) {
+            fileBytes = reportServiceExcel.generateVisitorReportExcel(startDate, endDate, offCode, withPhoto);
+            fileName = "visitor_report.xlsx";
+            mediaType = MediaType.parseMediaType(
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        } else {
+            throw new IllegalArgumentException("Invalid format. Use PDF or EXCEL");
+        }
+
+        if (fileBytes == null || fileBytes.length < 100) {
+            throw new RuntimeException("Generated file is empty");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData("attachment", fileName);
+        headers.setContentType(mediaType);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(fileBytes);
+    }
+    
+    @GetMapping(path = "/get-info", params = { "mobileNo" })
+	public Map<String, Object> getInfo2(
+			@Valid @RequestParam("mobileNo") @Pattern(regexp = "\\d{10}", message = "Mobile number must be 10 digits") final String mobileNo) throws Exception {
+    	
+		try {
+			if (mobileNo.matches(".*\\D.*")) {
+				throw new InternalServerError("Invalid Mobile Number");
+			}
+			if (mobileNo.length() != 10 || mobileNo == null)
+				throw new InternalServerError("Invalid Mobile number");
+			
+			Optional<Visitor> visitor = visitorService.getData(mobileNo);
+			if(visitor.isEmpty())
+				return null;
+
+			Map<String, Object> data = new HashMap<>();
+			data.put("name", visitor.get().getName());
+			data.put("state", visitor.get().getState());
+			data.put("address", visitor.get().getAddress());			
+			data.put("email", visitor.get().getEmail());
+			data.put("title", visitor.get().getTitle());
+			
+			return data;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+    
+    @GetMapping(path = "/stats")
+	public ResponseEntity<VisitorReportResponse> getStats(
+			@RequestParam final Integer month, @RequestParam final Integer year, @RequestParam(required=false) final String purpose,
+			@RequestParam(required=false) final Integer officeCode, @AuthenticationPrincipal User user) throws Exception {
+    	
+		try {
+			LocalDate startDate = LocalDate.of(year, month, 1);
+			LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+			
+			return ResponseEntity.ok(
+	                visitorService.getVisitorReport(
+	                        officeCode==-1?user.getOfficeCode():officeCode,
+	                        startDate,
+	                        endDate,
+	                        purpose
+	                                      ));
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+    
+    @GetMapping("/purpose-stats")
+    public List<PurposeStatsDto> visitorsByPurpose(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam(required=false) Integer officeCode, @AuthenticationPrincipal User user) {
+
+        return visitorService.getVisitorsByPurpose(year, month, officeCode==-1?user.getOfficeCode():officeCode);
+    }
+    
+//    @PostMapping("/test-image")
+//    public String testImage() {
+//
+//        File file = new File("E://emblem.png");
+//
+//        String mediaId = whatsAppService.uploadMedia(file);
+//
+//        return whatsAppService.sendImage("919774124758", mediaId,"123");
+//    }
+}

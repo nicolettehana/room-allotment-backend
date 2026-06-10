@@ -1,0 +1,86 @@
+package sad.sras.repo.appdata;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import sad.sras.dto.appdata.PurposeStatsDto;
+import sad.sras.models.appdata.Visitor;
+
+public interface VisitorRepository extends JpaRepository<Visitor, Long>{
+	
+	Page<Visitor> findByVisitDateTimeBetween(
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            Pageable pageable
+    );
+	
+	@Query("""
+	        SELECT v
+	        FROM Visitor v
+	        WHERE v.visitDateTime BETWEEN :startDateTime AND :endDateTime
+	          AND (
+	                :search IS NULL
+	                OR LOWER(v.name) LIKE LOWER(CONCAT('%', :search, '%'))
+	                OR LOWER(v.mobileNo) LIKE LOWER(CONCAT('%', :search, '%'))
+	                OR LOWER(v.address) LIKE LOWER(CONCAT('%', :search, '%'))
+	                OR LOWER(v.vPassNo) LIKE LOWER(CONCAT('%', :search, '%'))
+	                OR LOWER(v.purposeDetails) LIKE LOWER(CONCAT('%', :search, '%'))
+	          )
+	          AND (v.officeCode = :officeCode OR :officeCode IS NULL)
+	    """)
+	    Page<Visitor> searchVisitorsBetweenDates(
+	            @Param("startDateTime") LocalDateTime startDateTime,
+	            @Param("endDateTime") LocalDateTime endDateTime,
+	            @Param("search") String search,
+	            @Param("officeCode") Integer officeCode,
+	            Pageable pageable
+	    );
+	
+	List<Visitor> findByVisitDateTimeBetweenAndOfficeCodeEquals(LocalDateTime startDateTime, LocalDateTime endDateTime, Integer officeCode);
+	List<Visitor> findByVisitDateTimeBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
+	
+	Optional<Visitor> findTopByMobileNoOrderByIdDesc(String mobileNo);
+
+	@Query("""
+		    SELECT 
+		        CAST(v.visitDateTime AS date),
+		        v.purpose,
+		        SUM(v.noOfVisitors) 
+		    FROM Visitor v
+		    WHERE (:officeCode IS NULL OR v.officeCode = :officeCode)
+		    AND v.visitDateTime >= :start
+		    AND v.visitDateTime < :end
+		    AND (:purpose IS NULL OR v.purpose = :purpose)
+		    GROUP BY  CAST(v.visitDateTime AS date), v.purpose
+		    ORDER BY  CAST(v.visitDateTime AS date)
+		""")
+		List<Object[]> getVisitorsGrouped(
+		        @Param("officeCode") Integer officeCode,
+		        @Param("start") LocalDateTime start,
+		        @Param("end") LocalDateTime end,
+		        @Param("purpose") String purpose
+		);
+		
+		@Query("""
+		        SELECT v.purpose as purpose,
+		               SUM(v.noOfVisitors) as totalVisitors
+		        FROM Visitor v
+		        WHERE YEAR(v.visitDateTime) = :year
+		          AND MONTH(v.visitDateTime) = :month 
+		          AND v.officeCode = :officeCode
+		        GROUP BY v.purpose
+		        ORDER BY totalVisitors DESC
+		    """)
+		    List<PurposeStatsDto> countVisitorsByPurpose(
+		            @Param("year") int year,
+		            @Param("month") int month,
+		            @Param("officeCode") int officeCode
+		    );
+}
