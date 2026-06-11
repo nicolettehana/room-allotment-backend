@@ -35,6 +35,7 @@ public class KaptchaConfig {
         properties.setProperty("kaptcha.obscurificator.impl", "com.google.code.kaptcha.impl.WaterRipple");
         //properties.setProperty("kaptcha.background.clear.from", "217,229,243");
         properties.setProperty("kaptcha.background.clear.from", "244,239,225");
+        //properties.setProperty("kaptcha.background.clear.from", "255,255,255");
         properties.setProperty("kaptcha.background.clear.to", "255,255,255");
 
 

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +46,6 @@ public class OfficesController {
 	@PostMapping
     public ResponseEntity<?> createOffice(@RequestBody OfficeRequest request) {
 		try {
-			System.out.println("Request: "+request);
 			return ResponseEntity.ok(officeService.createOffice(request));
 			//return ResponseEntity.ok("ok");
 		} catch (UnauthorizedException ex) {
