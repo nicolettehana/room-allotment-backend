@@ -69,7 +69,7 @@ public class HallBookingService {
         page.getContent().forEach(booking -> {
             
             booking.setStatus(coreService.getStatus(booking.getAppStatus()));
-            booking.setBuildingName(coreService.getOfficeName(booking.getHallId()));
+            booking.setBuildingName(coreService.getOfficeName(booking.getHallOfficeCode()));
             booking.setHallName(coreService.getRoomName(booking.getHallId()));
             
         });

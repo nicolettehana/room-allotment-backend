@@ -1,11 +1,14 @@
 package sad.sras.services.appdata;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import sad.sras.dto.appdata.TakeActionDTO;
+import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.appdata.HallAllotment;
 import sad.sras.models.appdata.HallBooking;
 import sad.sras.models.appdata.Remark;
@@ -28,6 +31,18 @@ public class HallAllotmentService {
 		HallBooking hallBooking = hallBookingService.getBooking(request.getBookingId());
 		
 		if(request.getAction().equals("A")) {
+			
+			boolean available = isHallAvailable(
+		            hallBooking.getHallOfficeCode(),
+		            hallBooking.getHallId(),
+		            hallBooking.getMeetingDate(),
+		            hallBooking.getStartTime(),
+		            hallBooking.getEndTime());
+
+		    if (!available) {
+		        throw new UnauthorizedException("Hall is already allotted for the selected time slot.");
+		    }
+		    
 			hallBookingService.setStatus(hallBooking, 2L, null);
 			
 			HallAllotment hallAllotment = HallAllotment.builder()
@@ -74,8 +89,22 @@ public class HallAllotmentService {
 					Remark r = remarkRepo.save(remark);
 			hallBookingService.setStatus(hallBooking, 5L, r.getId());
 		}
-		return true;
 		
+		return true;	
     }
+	
+	private boolean isHallAvailable(Long officeCode,
+            Long hallId,
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime) {
+
+				return hallAllotmentRepo.countOverlappingBookings(
+				officeCode,
+				hallId,
+				date,
+				startTime,
+				endTime) == 0;
+			}
 
 }
