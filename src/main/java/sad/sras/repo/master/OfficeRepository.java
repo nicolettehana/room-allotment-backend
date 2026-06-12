@@ -8,7 +8,7 @@ import sad.sras.models.master.Office;
 
 public interface OfficeRepository extends JpaRepository<Office, Integer>{
 	
-	Optional<Office> findByOfficeCode(Integer officeCode);
+	Optional<Office> findByOfficeCode(Long officeCode);
 	
 	Optional<Office> findByOfficeName(String officeName);
 

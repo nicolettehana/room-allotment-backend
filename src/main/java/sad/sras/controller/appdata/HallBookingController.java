@@ -59,7 +59,18 @@ public class HallBookingController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        return hallBookingService.getBookingsBetweenDates(startDate,endDate,search, user.getUsername(), pageable);
+        return hallBookingService.getBookingsBetweenDates(startDate,endDate,search, user, pageable);
+    }
+	
+	@GetMapping("/pending")
+    public Page<HallBooking> getPendingBookings(
+            @RequestParam(defaultValue = "0") int page,
+ 	        @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+
+        return hallBookingService.getPendingBookings(pageable);
     }
 
 }

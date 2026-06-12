@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -69,7 +70,7 @@ public class HallBooking {
     private LocalDateTime updatedDate;
     
     @Column(name = "app_status")
-    private Integer appStatus;
+    private Long appStatus;
     
     @Column(name = "level")
     private Integer level;
@@ -82,5 +83,17 @@ public class HallBooking {
     
     @Column(name = "applied_by")
     private String appliedBy;
+    
+    @Column(name = "booking_id")
+    private String bookingId;
+    
+    @Transient
+    private String buildingName;
+    
+    @Transient
+    private String hallName;
+    
+    @Transient
+    private String status;
 
 }

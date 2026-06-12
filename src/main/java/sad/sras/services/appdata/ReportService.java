@@ -49,8 +49,8 @@ public class ReportService {
         LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
         
-        Optional<Office> office = officeRepository.findByOfficeCode(officeCode);
-        String building = office.isEmpty()?"":office.get().getOfficeName();
+//        Optional<Office> office = officeRepository.findByOfficeCode(officeCode);
+//        String building = office.isEmpty()?"":office.get().getOfficeName();
 
         List<Visitor> visitors;
         if(officeCode==null || officeCode.equals(""))
@@ -67,12 +67,12 @@ public class ReportService {
         document.setMargins(20, 20, 20, 20);
 
         // Title
-        Paragraph title = new Paragraph("Government of Meghalaya \n "+building+" \n Visitors")
-                .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
-                .setFontSize(13)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setMarginBottom(0);
-        document.add(title);
+//        Paragraph title = new Paragraph("Government of Meghalaya \n "+building+" \n Visitors")
+//                .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
+//                .setFontSize(13)
+//                .setTextAlignment(TextAlignment.CENTER)
+//                .setMarginBottom(0);
+//        document.add(title);
         
         
      // ← Add this block: Date range info

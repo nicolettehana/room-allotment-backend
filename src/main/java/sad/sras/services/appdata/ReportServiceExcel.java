@@ -39,8 +39,8 @@ public class ReportServiceExcel {
 	    DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 	    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
 	    
-	    Optional<Office> office = officeRepository.findByOfficeCode(officeCode);
-        String building = office.isEmpty()?"":office.get().getOfficeName();
+//	    Optional<Office> office = officeRepository.findByOfficeCode(officeCode);
+//        String building = office.isEmpty()?"":office.get().getOfficeName();
 
         List<Visitor> visitors;
         if(officeCode==null || officeCode.equals(""))
@@ -86,17 +86,17 @@ public class ReportServiceExcel {
 	    dataStyle.setBorderRight(BorderStyle.THIN);
 
 	    // ---------------- Title ----------------
-	    Row titleRow = sheet.createRow(rowNum++);
-	    Cell titleCell = titleRow.createCell(0);
-	    titleCell.setCellValue("Government of Meghalaya \n"+building+" \nVisitors");
-	    titleCell.setCellStyle(titleStyle);
-	    titleStyle.setWrapText(true); 
-	    //sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(0, 0, 0, 7));
-	    int totalColumns = includePhoto ? 9 : 8;
-	    sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, totalColumns - 1));
-	    titleRow.setHeightInPoints((5 * sheet.getDefaultRowHeightInPoints())); 
-
-	    rowNum++;
+//	    Row titleRow = sheet.createRow(rowNum++);
+//	    Cell titleCell = titleRow.createCell(0);
+//	    titleCell.setCellValue("Government of Meghalaya \n"+building+" \nVisitors");
+//	    titleCell.setCellStyle(titleStyle);
+//	    titleStyle.setWrapText(true); 
+//	    //sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(0, 0, 0, 7));
+//	    int totalColumns = includePhoto ? 9 : 8;
+//	    sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, totalColumns - 1));
+//	    titleRow.setHeightInPoints((5 * sheet.getDefaultRowHeightInPoints())); 
+//
+//	    rowNum++;
 
 	    // ---------------- Meta Info ----------------
 	    Row dateRow = sheet.createRow(rowNum++);

@@ -15,7 +15,7 @@ public class RoomService {
 	private final RoomRepository roomRepo;
 	
 	public List<Room> getHalls(Long officeCode) {
-        return roomRepo.findByRoomType_Office_OfficeCodeAndRoomType_HallTrue(officeCode);   
+        return roomRepo.findByRoomType_Office_OfficeCodeAndRoomType_HallTrueOrderBySortOrderAsc(officeCode);   
     }
 
 }

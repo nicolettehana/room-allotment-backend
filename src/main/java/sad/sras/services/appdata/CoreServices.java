@@ -13,15 +13,21 @@ import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import sad.sras.models.auth.User;
+import sad.sras.models.master.AppStatus;
 import sad.sras.models.master.Office;
+import sad.sras.models.master.Room;
 import sad.sras.repo.auth.UserRepository;
+import sad.sras.repo.master.AppStatusRepository;
 import sad.sras.repo.master.OfficeRepository;
+import sad.sras.repo.master.RoomRepository;
 @Service
 @RequiredArgsConstructor
 public class CoreServices {
 	
 	private final UserRepository userRepo;
 	private final OfficeRepository officeRepository;
+	private final RoomRepository roomRepo;
+	private final AppStatusRepository appStatusRepo;
 	
 	public String getClientIp(HttpServletRequest request) {
 		String ipAddress = request.getHeader("X-Forwarded-For");
@@ -48,12 +54,28 @@ public class CoreServices {
 		return email;
 	}
 	
-	public String getOfficeName(Integer officeCode) {
+	public String getOfficeName(Long officeCode) {
 		String officeName="";
 		Optional<Office> office = officeRepository.findByOfficeCode(officeCode);
 		if(office.isPresent())
 			officeName=office.get().getOfficeName();
 		return officeName;
+	}
+	
+	public String getRoomName(Long hallId) {
+		String roomName="";
+		Optional<Room> room = roomRepo.findById(hallId);
+		if(room.isPresent())
+			roomName=room.get().getName();
+		return roomName;
+	}
+	
+	public String getStatus(Long statusId) {
+		String status="";
+		Optional<AppStatus> appStatus = appStatusRepo.findById(statusId);
+		if(appStatus.isPresent())
+			status=appStatus.get().getStatus();
+		return status;
 	}
 	
 	

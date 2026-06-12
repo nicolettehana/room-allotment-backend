@@ -62,18 +62,18 @@ public class PassService {
 	private String passesDir;
 	
 	
-	
-	public byte[] generateQrCode(Visitor visitor, Integer size) throws Exception {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
-		String text ="Name:"+visitor.getName()+"\n"+"Visit Date:"+visitor.getVisitDateTime().format(formatter)+"\n"+"Purpose:"+visitor.getPurpose()+", "+visitor.getPurposeDetails()+"\n"+"e-Pass no:"+visitor.getVPassNo()+"\n Building: "+coreService.getOfficeName(visitor.getOfficeCode());
-	    BitMatrix matrix = new QRCodeWriter()
-	            .encode(text, BarcodeFormat.QR_CODE, size, size);
-
-	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    MatrixToImageWriter.writeToStream(matrix, "PNG", out);
-	    return out.toByteArray();
-	}
-	
+//	
+//	public byte[] generateQrCode(Visitor visitor, Integer size) throws Exception {
+//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
+//		String text ="Name:"+visitor.getName()+"\n"+"Visit Date:"+visitor.getVisitDateTime().format(formatter)+"\n"+"Purpose:"+visitor.getPurpose()+", "+visitor.getPurposeDetails()+"\n"+"e-Pass no:"+visitor.getVPassNo()+"\n Building: "+coreService.getOfficeName(visitor.getOfficeCode());
+//	    BitMatrix matrix = new QRCodeWriter()
+//	            .encode(text, BarcodeFormat.QR_CODE, size, size);
+//
+//	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+//	    MatrixToImageWriter.writeToStream(matrix, "PNG", out);
+//	    return out.toByteArray();
+//	}
+//	
 	
 	public byte[] generateVisitorPassPdf(
 	        Visitor visitor, MultipartFile photo1
@@ -113,11 +113,11 @@ public class PassService {
 	                .setMarginTop(0)
 	                .setMarginBottom(2));
 	        
-	        document.add(new Paragraph(coreService.getOfficeName(visitor.getOfficeCode()))
-	                .setFontSize(9)
-	                .setTextAlignment(TextAlignment.CENTER)
-	                .setMarginTop(0)
-	                .setMarginBottom(2));
+//	        document.add(new Paragraph(coreService.getOfficeName(visitor.getOfficeCode()))
+//	                .setFontSize(9)
+//	                .setTextAlignment(TextAlignment.CENTER)
+//	                .setMarginTop(0)
+//	                .setMarginBottom(2));
 
 	        document.add(new Paragraph("e-VISITOR PASS No. : " + visitor.getVPassNo())
 	                .setBold()
@@ -141,11 +141,11 @@ public class PassService {
 	        .plusHours(3)
 	        .format(formatter)+")"));
 	        
-	        byte[] qrCode = generateQrCode(visitor, 150);
+//	        byte[] qrCode = generateQrCode(visitor, 150);
 	        //whatsAppService.sendQRCode(generateWhatsappQrCode(visitor, 350), visitor.getVPassNo(),"919774124758");
 	     
-	        Image qrImg = new Image(ImageDataFactory.create(qrCode)) .setWidth(90) .setHorizontalAlignment(HorizontalAlignment.LEFT) .setMarginTop(0); 
-	        left.add(qrImg);
+//	        Image qrImg = new Image(ImageDataFactory.create(qrCode)) .setWidth(90) .setHorizontalAlignment(HorizontalAlignment.LEFT) .setMarginTop(0); 
+//	        left.add(qrImg);
 	        mainTable.addCell(left); 
 	        
 	        Image photoImg = new Image(ImageDataFactory.create(visitorPhotoService.getVisitorPhoto(visitor.getId()).data())) .setWidth(80)  .setAutoScale(true); 
@@ -199,10 +199,10 @@ public class PassService {
 	                .setTextAlignment(TextAlignment.CENTER)
 	                .setMarginBottom(2));
 
-	        document.add(new Paragraph(coreService.getOfficeName(visitor.getOfficeCode()))
-	                .setFontSize(9)
-	                .setTextAlignment(TextAlignment.CENTER)
-	                .setMarginBottom(2));
+//	        document.add(new Paragraph(coreService.getOfficeName(visitor.getOfficeCode()))
+//	                .setFontSize(9)
+//	                .setTextAlignment(TextAlignment.CENTER)
+//	                .setMarginBottom(2));
 
 	        document.add(new Paragraph("e-VISITOR PASS No. : " + visitor.getVPassNo())
 	                .setBold()
@@ -228,10 +228,10 @@ public class PassService {
 	                " (Valid until: " +
 	                visitor.getVisitDateTime().plusHours(3).format(formatter) + ")"));
 
-	        byte[] qrCode = generateQrCode(visitor, 150);
-	        Image qrImg = new Image(ImageDataFactory.create(qrCode)).setWidth(90);
+//	        byte[] qrCode = generateQrCode(visitor, 150);
+//	        Image qrImg = new Image(ImageDataFactory.create(qrCode)).setWidth(90);
 
-	        left.add(qrImg);
+//	        left.add(qrImg);
 	        mainTable.addCell(left);
 
 	        Image photoImg = new Image(ImageDataFactory.create(

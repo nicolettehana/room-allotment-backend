@@ -63,7 +63,7 @@ public class User implements UserDetails{
 	private Role role;
 	
 	@Column(name="office_code")
-	private Integer officeCode;
+	private Long officeCode;
 	  
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

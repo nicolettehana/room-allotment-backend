@@ -61,52 +61,52 @@ public class VisitorController {
 	private final ReportServiceExcel reportServiceExcel;
 	//private final WhatsAppService whatsAppService;
 	
-	@Auditable
-	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<byte[]> createVisitor(
-	        @Valid @RequestPart("visitor") VisitorRequestDto visitorJson,
-	        @RequestPart("photo") MultipartFile photo,
-	        @AuthenticationPrincipal User user
-	) throws Exception {
-		//ObjectMapper mapper = new ObjectMapper();
-		//mapper.registerModule(new JavaTimeModule());
-	    //VisitorRequestDto visitorDto =
-	   //         mapper.readValue(visitorJson, VisitorRequestDto.class);
-	    //Visitor visitor =visitorService.createVisitor(visitorDto, photo,user.getOfficeCode());
-		Visitor visitor = visitorService.createVisitor(visitorJson, photo, user.getOfficeCode());
-	    //whatsAppService.sendSimpleQrToWhatsApp("919774124758", visitor);
-	    return ResponseEntity.ok()
-	            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + visitor.getVPassNo() + ".pdf")
-	            .contentType(MediaType.APPLICATION_PDF)
-	            .body(passService.generateVisitorPassPdf1(visitor));
-	    //return ResponseEntity.ok("Registered");
-	}
+//	@Auditable
+//	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//	public ResponseEntity<byte[]> createVisitor(
+//	        @Valid @RequestPart("visitor") VisitorRequestDto visitorJson,
+//	        @RequestPart("photo") MultipartFile photo,
+//	        @AuthenticationPrincipal User user
+//	) throws Exception {
+//		//ObjectMapper mapper = new ObjectMapper();
+//		//mapper.registerModule(new JavaTimeModule());
+//	    //VisitorRequestDto visitorDto =
+//	   //         mapper.readValue(visitorJson, VisitorRequestDto.class);
+//	    //Visitor visitor =visitorService.createVisitor(visitorDto, photo,user.getOfficeCode());
+//		Visitor visitor = visitorService.createVisitor(visitorJson, photo, user.getOfficeCode());
+//	    //whatsAppService.sendSimpleQrToWhatsApp("919774124758", visitor);
+//	    return ResponseEntity.ok()
+//	            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + visitor.getVPassNo() + ".pdf")
+//	            .contentType(MediaType.APPLICATION_PDF)
+//	            .body(passService.generateVisitorPassPdf1(visitor));
+//	    //return ResponseEntity.ok("Registered");
+//	}
 	
-	@GetMapping
-    public Page<Visitor> getVisitorsByDateRange(
-            @RequestParam
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate startDate,
-            @RequestParam
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate endDate,
-            @RequestParam(defaultValue = "0") int page,
- 	        @RequestParam(defaultValue = "10") int size,
- 	        @RequestParam(defaultValue = "") String search,
- 	        @RequestParam(required=false) Integer officeCode,
- 	       @AuthenticationPrincipal User user
-    ) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        
-        Integer offCode;
-        if(officeCode==null)
-        	offCode = user.getOfficeCode();
-        else
-        	offCode=officeCode;
-
-        return visitorService.getVisitorsBetweenDates(startDate,endDate,search, offCode, pageable);
-    }
+//	@GetMapping
+//    public Page<Visitor> getVisitorsByDateRange(
+//            @RequestParam
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+//            LocalDate startDate,
+//            @RequestParam
+//            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+//            LocalDate endDate,
+//            @RequestParam(defaultValue = "0") int page,
+// 	        @RequestParam(defaultValue = "10") int size,
+// 	        @RequestParam(defaultValue = "") String search,
+// 	        @RequestParam(required=false) Integer officeCode,
+// 	       @AuthenticationPrincipal User user
+//    ) {
+//
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+//        
+//        Long offCode;
+//        if(officeCode==null)
+//        	offCode = user.getOfficeCode();
+//        else
+//        	offCode=officeCode;
+//
+//        return visitorService.getVisitorsBetweenDates(startDate,endDate,search, offCode, pageable);
+//    }
 	
 	@GetMapping("/{visitorCode}/photo")
     public ResponseEntity<byte[]> getVisitorPhoto(
@@ -146,7 +146,8 @@ public class VisitorController {
 
         Integer offCode;
         if(user.getRole().name().equals("SAD"))
-        	offCode = user.getOfficeCode();
+        	//offCode = user.getOfficeCode();
+        	offCode=1;
         else
         	offCode=officeCode;
         
@@ -206,36 +207,36 @@ public class VisitorController {
 		}
 	}
     
-    @GetMapping(path = "/stats")
-	public ResponseEntity<VisitorReportResponse> getStats(
-			@RequestParam final Integer month, @RequestParam final Integer year, @RequestParam(required=false) final String purpose,
-			@RequestParam(required=false) final Integer officeCode, @AuthenticationPrincipal User user) throws Exception {
-    	
-		try {
-			LocalDate startDate = LocalDate.of(year, month, 1);
-			LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
-			
-			return ResponseEntity.ok(
-	                visitorService.getVisitorReport(
-	                        officeCode==-1?user.getOfficeCode():officeCode,
-	                        startDate,
-	                        endDate,
-	                        purpose
-	                                      ));
-		} catch (Exception e) {
-			throw e;
-		}
-	}
+//    @GetMapping(path = "/stats")
+//	public ResponseEntity<VisitorReportResponse> getStats(
+//			@RequestParam final Integer month, @RequestParam final Integer year, @RequestParam(required=false) final String purpose,
+//			@RequestParam(required=false) final Integer officeCode, @AuthenticationPrincipal User user) throws Exception {
+//    	
+//		try {
+//			LocalDate startDate = LocalDate.of(year, month, 1);
+//			LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+//			
+//			return ResponseEntity.ok(
+//	                visitorService.getVisitorReport(
+//	                        officeCode==-1?user.getOfficeCode():officeCode,
+//	                        startDate,
+//	                        endDate,
+//	                        purpose
+//	                                      ));
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//	}
     
-    @GetMapping("/purpose-stats")
-    public List<PurposeStatsDto> visitorsByPurpose(
-            @RequestParam int year,
-            @RequestParam int month,
-            @RequestParam(required=false) Integer officeCode, @AuthenticationPrincipal User user) {
-
-        return visitorService.getVisitorsByPurpose(year, month, officeCode==-1?user.getOfficeCode():officeCode);
-    }
-    
+//    @GetMapping("/purpose-stats")
+//    public List<PurposeStatsDto> visitorsByPurpose(
+//            @RequestParam int year,
+//            @RequestParam int month,
+//            @RequestParam(required=false) Integer officeCode, @AuthenticationPrincipal User user) {
+//
+//        return visitorService.getVisitorsByPurpose(year, month, officeCode==-1?user.getOfficeCode():officeCode);
+//    }
+//    
 //    @PostMapping("/test-image")
 //    public String testImage() {
 //

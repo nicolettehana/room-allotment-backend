@@ -47,5 +47,5 @@ public class RegisterRequest {
 	
 	private String otp;
 	
-	private Integer officeCode;
+	private Long officeCode;
 }

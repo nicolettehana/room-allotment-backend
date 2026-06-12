@@ -30,16 +30,16 @@ public class OfficesService {
 		    	office.setOfficeName(request.getOfficeName());
 		    	officeRepository.save(office);
 			}
-			else {
-				Optional<Office> office = officeRepository.findByOfficeCode(request.getOfficeCode());
-				if(office.isEmpty())
-					throw new UnauthorizedException("Office code invalid");
-				Optional<Office> office2 = officeRepository.findByOfficeName(request.getOfficeName());
-				if(office2.isPresent() && office2.get().getOfficeCode()!=request.getOfficeCode())
-					throw new UnauthorizedException("Duplicate Office Name");
-				office.get().setOfficeName(request.getOfficeName());
-				officeRepository.save(office.get());
-			}
+//			else {
+//				Optional<Office> office = officeRepository.findByOfficeCode(request.getOfficeCode());
+//				if(office.isEmpty())
+//					throw new UnauthorizedException("Office code invalid");
+//				Optional<Office> office2 = officeRepository.findByOfficeName(request.getOfficeName());
+//				if(office2.isPresent() && office2.get().getOfficeCode()!=request.getOfficeCode())
+//					throw new UnauthorizedException("Duplicate Office Name");
+//				office.get().setOfficeName(request.getOfficeName());
+//				officeRepository.save(office.get());
+//			}
 	    	return "Added successfully";
 		}catch(Exception ex) {
 			throw ex;

@@ -23,7 +23,7 @@ public class Office {
 	@Id
 	@GeneratedValue(strategy= GenerationType.AUTO)
     @Column(name = "office_code", nullable = false)
-    private Integer officeCode;
+    private Long officeCode;
 
     @Column(name = "office_name", nullable = false, length = 255)
     private String officeName;

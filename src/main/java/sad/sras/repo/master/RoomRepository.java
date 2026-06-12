@@ -8,6 +8,6 @@ import sad.sras.models.master.Room;
 
 public interface RoomRepository extends JpaRepository<Room, Long>{
 	
-	List<Room> findByRoomType_Office_OfficeCodeAndRoomType_HallTrue(Long officeCode);
+	List<Room> findByRoomType_Office_OfficeCodeAndRoomType_HallTrueOrderBySortOrderAsc(Long officeCode);
 
 }
