@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import sad.sras.exception.ObjectNotFoundException;
 import sad.sras.models.appdata.HallBooking;
 import sad.sras.models.appdata.Visitor;
 import sad.sras.models.auth.User;
@@ -104,7 +105,7 @@ public class HallBookingService {
 			
 			int year = Year.now().getValue() % 100; // Last 2 digits of year
 		    //String officeCode = new DecimalFormat("00").format(commonService.getOfficeCode(houseId));
-			int serial = Integer.valueOf(lastBookingID.substring(lastBookingID.lastIndexOf('/') - 6));
+			int serial = Integer.valueOf(lastBookingID.substring(lastBookingID.lastIndexOf('/')+1));
 			String prefix = year+"";
 			String newBookingID;
 		    do {
@@ -127,5 +128,23 @@ public class HallBookingService {
 			return (newBookingID);
 		}
 	}
+	
+	public HallBooking getBooking(String bookingId) {
+
+		Optional<HallBooking> optHallBooking = hallBookingRepo.findByBookingId(bookingId);
+		if(optHallBooking.isEmpty())
+			throw new ObjectNotFoundException("Invalid booking ID");
+
+        return hallBookingRepo.save(optHallBooking.get());
+    }
+	
+	public HallBooking setStatus(HallBooking booking,Long statusId, Long remarkId) {
+
+		booking.setAppStatus(statusId);
+		if(remarkId!=null)
+			booking.setNazirRemark(remarkId);
+
+        return hallBookingRepo.save(booking);
+    }
 
 }

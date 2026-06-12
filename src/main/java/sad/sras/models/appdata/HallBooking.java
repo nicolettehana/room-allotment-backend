@@ -87,6 +87,9 @@ public class HallBooking {
     @Column(name = "booking_id")
     private String bookingId;
     
+    @Column(name = "nazir_remark")
+    private Long nazirRemark;
+    
     @Transient
     private String buildingName;
     

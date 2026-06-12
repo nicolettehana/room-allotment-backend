@@ -64,5 +64,7 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 	
 	@Query("SELECT COUNT(a) > 0 FROM HallBooking a WHERE a.bookingId = :bookingID")
 	boolean applicationNoExists(@Param("bookingID") String bookingID);
+	
+	Optional<HallBooking> findByBookingId(String bookingId);
 
 }

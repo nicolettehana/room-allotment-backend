@@ -20,9 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import sad.sras.annotations.Auditable;
+import sad.sras.dto.appdata.TakeActionDTO;
 import sad.sras.models.appdata.HallBooking;
-import sad.sras.models.appdata.Visitor;
 import sad.sras.models.auth.User;
+import sad.sras.services.appdata.HallAllotmentService;
 import sad.sras.services.appdata.HallBookingService;
 
 @RestController
@@ -31,6 +32,7 @@ import sad.sras.services.appdata.HallBookingService;
 public class HallBookingController {
 	
 	private final HallBookingService hallBookingService;
+	private final HallAllotmentService hallAllotmentService;
 	
 	@Auditable
 	@PostMapping
@@ -72,5 +74,19 @@ public class HallBookingController {
 
         return hallBookingService.getPendingBookings(pageable);
     }
+	
+	@Auditable
+	@PostMapping("/action")
+	public ResponseEntity<?> action(
+	        @RequestBody TakeActionDTO request, @AuthenticationPrincipal User user) {
+
+		Map<String, Object> data = new HashMap<>();
+		
+		hallAllotmentService.takeAction(request, user);
+		
+		data.put("detail", "Success");
+		
+	    return ResponseEntity.ok(data);
+	}
 
 }
