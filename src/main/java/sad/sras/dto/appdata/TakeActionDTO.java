@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class TakeActionDTO {
 	
-	@Required
 	public String action;
 	
 	@Required

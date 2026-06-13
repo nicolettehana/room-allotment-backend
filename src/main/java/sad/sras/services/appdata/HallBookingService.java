@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import sad.sras.exception.ObjectNotFoundException;
+import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.appdata.HallBooking;
 import sad.sras.models.appdata.Visitor;
 import sad.sras.models.auth.User;
+import sad.sras.repo.appdata.HallAllotmentRepository;
 import sad.sras.repo.appdata.HallBookingRepository;
 import sad.sras.services.auth.AuthenticationService;
 
@@ -26,9 +28,16 @@ public class HallBookingService {
 	private final HallBookingRepository hallBookingRepo;
 	private final AuthenticationService authService;
 	private final CoreServices coreService;
+	private final HallAllotmentRepository hallAllotmentRepo;
 	
 	public HallBooking createBooking(HallBooking request, String username) {
+		
+		boolean available = isHallAvailable(request.getHallOfficeCode(), request.getHallId(), request.getMeetingDate(), request.getStartTime(), request.getEndTime());
 
+		if (!available) {
+	        throw new UnauthorizedException("Hall is already allotted for the selected time slot.");
+	    }
+		
 		request.setContactMobileNo(authService.decryptPassword(request.getContactMobileNo()));
         request.setAppStatus(1L);
         request.setLevel(1);
@@ -43,11 +52,13 @@ public class HallBookingService {
             LocalDate endDate,
             String search,
             User user,
+            Integer status,
             Pageable pageable
     ) {
-    	//LocalDateTime startDateTime = startDate.atStartOfDay();
-        //LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
 
+		if(status==0)
+			status=null;
+		
 		Page<HallBooking> page;
 		
 		if(user.getRole().name().equals("ASAD"))
@@ -55,6 +66,7 @@ public class HallBookingService {
 	                startDate,
 	                endDate,
 	                search,
+	                status,
 	                pageable
 	        );
 		else
@@ -63,6 +75,7 @@ public class HallBookingService {
                 endDate,
                 search,
                 user.getUsername(),
+                status,
                 pageable
         );
         
@@ -146,5 +159,19 @@ public class HallBookingService {
 
         return hallBookingRepo.save(booking);
     }
+	
+	private boolean isHallAvailable(Long officeCode,
+            Long hallId,
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime) {
+
+				return hallAllotmentRepo.countOverlappingBookings(
+				officeCode,
+				hallId,
+				date,
+				startTime,
+				endTime) == 0;
+			}
 
 }

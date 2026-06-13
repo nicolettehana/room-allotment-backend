@@ -3,6 +3,7 @@ package sad.sras.services.appdata;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -80,6 +81,13 @@ public class HallAllotmentService {
 			hallBookingService.setStatus(hallBooking, 3L, r.getId());
 		}
 		else if(request.getAction().equals("C")) {
+			//If hall is allotted, un-allot first
+			if(hallBooking.getAppStatus()==2) {
+				Optional<HallAllotment> allotment = hallAllotmentRepo.findByBookingId(hallBooking.getBookingId());
+				if(allotment.isPresent()) {
+					hallAllotmentRepo.delete(allotment.get());
+				}
+			}
 			Remark remark = Remark.builder()
 					.actionCode("C")
 					.bookingId(hallBooking.getBookingId())
@@ -105,6 +113,20 @@ public class HallAllotmentService {
 				date,
 				startTime,
 				endTime) == 0;
-			}
+	}
+	
+	public String getRemark(TakeActionDTO request) {
+		
+		HallBooking hallBooking = hallBookingService.getBooking(request.getBookingId());
+		
+		Optional<Remark> remark = remarkRepo.findById(hallBooking.getNazirRemark());
+		
+		String nazirRemark = "";
+		
+		if(remark.isPresent())
+			nazirRemark = remark.get().getRemark();
+		
+		return nazirRemark;	
+    }
 
 }

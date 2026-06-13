@@ -56,12 +56,13 @@ public class HallBookingController {
             @RequestParam(defaultValue = "0") int page,
  	        @RequestParam(defaultValue = "10") int size,
  	        @RequestParam(defaultValue = "") String search,
+ 	       @RequestParam(defaultValue = "0") Integer status,
  	       @AuthenticationPrincipal User user
     ) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        return hallBookingService.getBookingsBetweenDates(startDate,endDate,search, user, pageable);
+        return hallBookingService.getBookingsBetweenDates(startDate,endDate,search, user, status, pageable);
     }
 	
 	@GetMapping("/pending")
@@ -85,6 +86,20 @@ public class HallBookingController {
 		hallAllotmentService.takeAction(request, user);
 		
 		data.put("detail", "Success");
+		
+	    return ResponseEntity.ok(data);
+	}
+	
+	@PostMapping("/get-remark")
+	public ResponseEntity<?> getRemark(
+	        @RequestBody TakeActionDTO request) {
+
+		Map<String, Object> data = new HashMap<>();
+		
+		
+		
+		data.put("detail", "Success");
+		data.put("remark", hallAllotmentService.getRemark(request));
 		
 	    return ResponseEntity.ok(data);
 	}

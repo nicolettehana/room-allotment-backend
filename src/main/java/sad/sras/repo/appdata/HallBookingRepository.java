@@ -20,6 +20,10 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		    WHERE h.meetingDate BETWEEN :startDate AND :endDate
 		      AND h.appliedBy = :username
 		      AND (
+	            :status IS NULL
+	            OR h.appStatus = :status
+	          )
+		      AND (
 		            :search IS NULL
 		            OR TRIM(:search) = ''
 		            OR LOWER(h.department) LIKE LOWER(CONCAT('%', :search, '%'))
@@ -34,6 +38,7 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		        @Param("endDate") LocalDate endDate,
 		        @Param("search") String search,
 		        @Param("username") String username,
+		        @Param("status") Integer status,
 		        Pageable pageable
 		);
 	
@@ -41,6 +46,10 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		    SELECT h
 		    FROM HallBooking h
 		    WHERE h.meetingDate BETWEEN :startDate AND :endDate
+			  AND (
+	            :status IS NULL
+	            OR h.appStatus = :status
+	          )
 		      AND (
 		            :search IS NULL
 		            OR TRIM(:search) = ''
@@ -55,6 +64,7 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		        @Param("startDate") LocalDate startDate,
 		        @Param("endDate") LocalDate endDate,
 		        @Param("search") String search,
+		        @Param("status") Integer status,
 		        Pageable pageable
 		);
 	
