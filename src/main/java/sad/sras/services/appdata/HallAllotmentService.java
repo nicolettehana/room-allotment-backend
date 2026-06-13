@@ -3,6 +3,7 @@ package sad.sras.services.appdata;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -128,5 +129,9 @@ public class HallAllotmentService {
 		
 		return nazirRemark;	
     }
+	
+	public List<HallAllotment> getHallAllotments(LocalDate date){
+		return hallAllotmentRepo.findAllByDate(date);
+	}
 
 }

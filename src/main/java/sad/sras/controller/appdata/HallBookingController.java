@@ -2,6 +2,7 @@ package sad.sras.controller.appdata;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import sad.sras.annotations.Auditable;
 import sad.sras.dto.appdata.TakeActionDTO;
+import sad.sras.models.appdata.HallAllotment;
 import sad.sras.models.appdata.HallBooking;
 import sad.sras.models.auth.User;
 import sad.sras.services.appdata.HallAllotmentService;
@@ -103,5 +105,14 @@ public class HallBookingController {
 		
 	    return ResponseEntity.ok(data);
 	}
+	
+	@GetMapping("/hall-allotments")
+    public List<HallAllotment> getHallAllotments(
+            @RequestParam LocalDate date
+    ) {
+
+        return hallAllotmentService.getHallAllotments(date);
+    }
+	
 
 }

@@ -10,4 +10,5 @@ public interface RoomRepository extends JpaRepository<Room, Long>{
 	
 	List<Room> findByRoomType_Office_OfficeCodeAndRoomType_HallTrueOrderBySortOrderAsc(Long officeCode);
 
+	List<Room> findByRoomType_HallTrueOrderBySortOrderAsc();
 }

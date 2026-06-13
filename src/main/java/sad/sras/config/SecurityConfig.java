@@ -57,6 +57,7 @@ public class SecurityConfig {
 				.requestMatchers("/visitor","/visitor/**").hasAnyAuthority(SAD.name(), ASAD.name(), DEPT.name())
 				//.requestMatchers("/visitor","/visitor/**").permitAll()
 				.requestMatchers(GET, "/booking/pending**").hasAnyAuthority(ASAD.name())
+				.requestMatchers(GET, "/booking/hall-allotments**").hasAnyAuthority(ASAD.name(), DEPT.name())
 		
 				.requestMatchers(GET, "/menu","/users/profile","/users/get-user-info","/offices","/room/hall","/booking**") .hasAnyAuthority(ADMIN.name(), SAD.name(), ASAD.name(), DEPT.name())
 				.requestMatchers(POST, "/users/change-password","/users/update","/users/verify-otp-update-mobile") .hasAnyAuthority(ADMIN.name(), SAD.name(), ASAD.name(), DEPT.name()) 

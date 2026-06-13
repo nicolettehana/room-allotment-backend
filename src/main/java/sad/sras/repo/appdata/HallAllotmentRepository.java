@@ -2,6 +2,7 @@ package sad.sras.repo.appdata;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,8 @@ import sad.sras.models.appdata.HallAllotment;
 public interface HallAllotmentRepository extends JpaRepository<HallAllotment, Long>{
 	
 	Optional<HallAllotment> findByBookingId(String bookingId);
+	
+	List<HallAllotment> findAllByDate(LocalDate date);
 	
 	@Query("""
 	        SELECT COUNT(h)
