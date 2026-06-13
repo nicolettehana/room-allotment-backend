@@ -3,12 +3,15 @@ package sad.sras.services.appdata;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import sad.sras.dto.appdata.MeetingsDTO;
 import sad.sras.dto.appdata.TakeActionDTO;
 import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.appdata.HallAllotment;
@@ -130,8 +133,28 @@ public class HallAllotmentService {
 		return nazirRemark;	
     }
 	
-	public List<HallAllotment> getHallAllotments(LocalDate date){
-		return hallAllotmentRepo.findAllByDate(date);
+	public List<MeetingsDTO> getHallAllotments(LocalDate date, Long officeCode){
+		
+		List<HallAllotment> hallAllotments = null;
+		if(officeCode==-1)
+			hallAllotments = hallAllotmentRepo.findAllByDate(date);
+		else
+			hallAllotments = hallAllotmentRepo.findAllByDateAndOfficeCode(date, officeCode);
+		
+		return hallAllotments.stream()
+	            .map(booking -> {
+	                MeetingsDTO dto = new MeetingsDTO();
+
+	                dto.setHallId(booking.getHallId());
+	                HallBooking hallBooking = hallBookingService.getBooking(booking.getBookingId());
+	                dto.setDepartment(hallBooking.getDepartment());
+	                dto.setPurpose(hallBooking.getPurpose());
+	                dto.setStart(booking.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+	                dto.setEnd(booking.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+	                return dto;
+	            })
+	            .collect(Collectors.toList());
 	}
 
 }

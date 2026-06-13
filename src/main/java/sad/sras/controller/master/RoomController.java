@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import sad.sras.dto.appdata.RoomsDTO;
 import sad.sras.exception.InternalServerError;
 import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.master.Room;
@@ -23,7 +24,7 @@ public class RoomController {
 	private final RoomService roomService;
 	
 	@GetMapping("/hall")
-	public List<Room> getHalls(@RequestParam Long officeCode) throws IOException {
+	public List<RoomsDTO> getHalls(@RequestParam Long officeCode) throws IOException {
 		try {
 			return roomService.getHalls(officeCode);
 		} catch (UnauthorizedException ex) {

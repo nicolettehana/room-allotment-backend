@@ -17,6 +17,8 @@ public interface HallAllotmentRepository extends JpaRepository<HallAllotment, Lo
 	
 	List<HallAllotment> findAllByDate(LocalDate date);
 	
+	List<HallAllotment> findAllByDateAndOfficeCode(LocalDate date, Long officeCode);
+	
 	@Query("""
 	        SELECT COUNT(h)
 	        FROM HallAllotment h

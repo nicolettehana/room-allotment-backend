@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import sad.sras.annotations.Auditable;
+import sad.sras.dto.appdata.MeetingsDTO;
 import sad.sras.dto.appdata.TakeActionDTO;
 import sad.sras.models.appdata.HallAllotment;
 import sad.sras.models.appdata.HallBooking;
@@ -107,11 +108,11 @@ public class HallBookingController {
 	}
 	
 	@GetMapping("/hall-allotments")
-    public List<HallAllotment> getHallAllotments(
-            @RequestParam LocalDate date
+    public List<MeetingsDTO> getHallAllotments(
+            @RequestParam LocalDate date,@RequestParam Long officeCode
     ) {
 
-        return hallAllotmentService.getHallAllotments(date);
+        return hallAllotmentService.getHallAllotments(date, officeCode);
     }
 	
 
