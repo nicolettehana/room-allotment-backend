@@ -8,5 +8,7 @@ public class RoomsDTO {
 	private Long id;
 	
 	private String name;
+	
+	private String office;
 
 }

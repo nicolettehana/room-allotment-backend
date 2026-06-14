@@ -28,8 +28,8 @@ public class RoomService {
 	                RoomsDTO dto = new RoomsDTO();
 
 	                dto.setId(room.getId());
-	                dto.setName(room.getName()+", "+room.getRoomType().getOffice().getOfficeName());
-	                
+	                dto.setName(room.getName());
+	                dto.setOffice(room.getRoomType().getOffice().getOfficeName());	     
 	                return dto;
 	            })
 	            .collect(Collectors.toList());
