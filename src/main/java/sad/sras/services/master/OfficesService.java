@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import sad.sras.dto.master.OfficeRequest;
+import sad.sras.exception.ObjectNotFoundException;
 import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.master.Office;
 import sad.sras.repo.master.OfficeRepository;
@@ -20,6 +21,17 @@ public class OfficesService {
 	public List<Office> getOffices() {
         return officeRepository.findAll();    
     }
+	
+	public Office findOffice(Long officeCode){
+		 Optional<Office> office = officeRepository.findByOfficeCode(officeCode);
+		 if(office.isEmpty())
+			 throw new ObjectNotFoundException("Invalid office code");
+		 
+		 return office.get();
+//		            .orElseThrow(() ->
+//		                    new ResourceNotFoundException(
+//		                            "Office not found with code: " + request.getOfficeCode()));
+	}
 	
 	public String createOffice(OfficeRequest request) {
 		try {

@@ -11,5 +11,6 @@ public class OfficeRequest {
 	
 	private String officeName;
 	private Integer officeCode;
+	private String hallName;
 
 }
