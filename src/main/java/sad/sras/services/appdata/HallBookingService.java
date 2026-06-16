@@ -38,13 +38,42 @@ public class HallBookingService {
 	        throw new UnauthorizedException("Hall is already allotted for the selected time slot.");
 	    }
 		
-		request.setContactMobileNo(authService.decryptPassword(request.getContactMobileNo()));
-        request.setAppStatus(1L);
-        request.setLevel(1);
-        request.setAppliedBy(username);
-        request.setBookingId(generateBookingID());
+		if(request.getBookingId()!=null) {
+			Optional<HallBooking> booking = hallBookingRepo.findByBookingId(request.getBookingId());
+			if(booking.isEmpty())
+				throw new ObjectNotFoundException("Invalid booking ID");
+			
+			booking.get().setDepartment(request.getDepartment());
+			booking.get().setPurpose(request.getPurpose());
+			booking.get().setMeetingDate(request.getMeetingDate());
+			booking.get().setStartTime(request.getStartTime());
+			booking.get().setEndTime(request.getEndTime());
+			booking.get().setHallOfficeCode(request.getHallOfficeCode());
+			booking.get().setHallId(request.getHallId());
+			booking.get().setNoOfAttendees(request.getNoOfAttendees());
+			booking.get().setRemarks(request.getRemarks());
+			booking.get().setContactName(request.getContactName());
+			booking.get().setContactDesignation(request.getContactDesignation());
+			booking.get().setContactMobileNo(authService.decryptPassword(request.getContactMobileNo()));
+			booking.get().setAppliedBy(username);
+			booking.get().setAppStatus(1L);
+			booking.get().setLevel(1);			
+			
+			return hallBookingRepo.save(booking.get());
+			
+		}
+		
+		else {
+			request.setContactMobileNo(authService.decryptPassword(request.getContactMobileNo()));
+	        request.setAppStatus(1L);
+	        request.setLevel(1);
+	        request.setAppliedBy(username);        
+        	request.setBookingId(generateBookingID());
+        	return hallBookingRepo.save(request);
+		}
+        
 
-        return hallBookingRepo.save(request);
+        
     }
 	
 	public Page<HallBooking> getBookingsBetweenDates(

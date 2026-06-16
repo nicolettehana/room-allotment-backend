@@ -53,16 +53,16 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 
-		.authorizeHttpRequests(auth -> auth .requestMatchers("/auth/**", "/csrf-token").permitAll()
+		.authorizeHttpRequests(auth -> auth .requestMatchers("/auth/**", "/csrf-token","/booking/hall-allotments**","/room/hall","/offices").permitAll()
 				.requestMatchers("/visitor","/visitor/**").hasAnyAuthority(SAD.name(), ASAD.name(), DEPT.name())
 				//.requestMatchers("/visitor","/visitor/**").permitAll()
 				.requestMatchers(GET, "/booking/pending**","/room/office-hall").hasAnyAuthority(ASAD.name())
-				.requestMatchers(GET, "/booking/hall-allotments**").hasAnyAuthority(ASAD.name(), DEPT.name())
+				//.requestMatchers(GET, "/booking/hall-allotments**").hasAnyAuthority(ASAD.name(), DEPT.name())
 		
-				.requestMatchers(GET, "/menu","/users/profile","/users/get-user-info","/offices","/room/hall","/booking**") .hasAnyAuthority(ADMIN.name(), SAD.name(), ASAD.name(), DEPT.name())
+				.requestMatchers(GET, "/menu","/users/profile","/users/get-user-info","/room/hall","/booking**") .hasAnyAuthority(ADMIN.name(), SAD.name(), ASAD.name(), DEPT.name())
 				.requestMatchers(POST, "/users/change-password","/users/update","/users/verify-otp-update-mobile") .hasAnyAuthority(ADMIN.name(), SAD.name(), ASAD.name(), DEPT.name()) 
 				.requestMatchers(POST,"/booking").hasAnyAuthority(DEPT.name())
-				.requestMatchers(POST,"/room/hall").hasAnyAuthority( ASAD.name())
+				//.requestMatchers(POST,"/room/hall").hasAnyAuthority( ASAD.name())
 				.requestMatchers(POST,"/booking/get-remark","/booking/action","/offices").hasAnyAuthority(DEPT.name(), ASAD.name())
 				.requestMatchers(GET,"/audit-trail/**","/users/all/**").hasAnyAuthority(ADMIN.name()) 
 				.requestMatchers(POST,"/users/enable-disable/**","/offices","/users/register").hasAnyAuthority(ADMIN.name()) 
