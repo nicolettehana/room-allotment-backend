@@ -41,6 +41,11 @@ public class HallBookingController {
 	@PostMapping
 	public ResponseEntity<?> createBooking(
 	        @RequestBody HallBooking request, @AuthenticationPrincipal User user) {
+		if(request.getBookingId()!=null)
+		{
+			System.out.println(request);
+			return ResponseEntity.ok(null);
+		}
 
 		Map<String, Object> data = new HashMap<>();
 		data.put("detail", "Request Submitted");
