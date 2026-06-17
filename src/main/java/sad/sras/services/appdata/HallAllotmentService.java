@@ -17,7 +17,6 @@ import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.appdata.HallAllotment;
 import sad.sras.models.appdata.HallBooking;
 import sad.sras.models.appdata.Remark;
-import sad.sras.models.appdata.Visitor;
 import sad.sras.models.auth.User;
 import sad.sras.repo.appdata.HallAllotmentRepository;
 import sad.sras.repo.appdata.HallBookingRepository;

@@ -13,12 +13,9 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import com.itextpdf.io.font.constants.StandardFonts;
-import com.itextpdf.io.image.ImageData;
-import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -27,7 +24,6 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
@@ -35,12 +31,10 @@ import com.itextpdf.layout.properties.UnitValue;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import sad.sras.dto.appdata.PhotoData;
 import sad.sras.exception.ObjectNotFoundException;
 import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.appdata.HallAllotment;
 import sad.sras.models.appdata.HallBooking;
-import sad.sras.models.appdata.Visitor;
 import sad.sras.models.auth.User;
 import sad.sras.repo.appdata.HallAllotmentRepository;
 import sad.sras.repo.appdata.HallBookingRepository;

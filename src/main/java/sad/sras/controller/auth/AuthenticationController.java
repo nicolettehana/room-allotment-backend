@@ -7,13 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,16 +27,12 @@ import sad.sras.dto.auth.AuthenticationRequest;
 import sad.sras.dto.auth.AuthenticationResponse;
 import sad.sras.dto.auth.GetOtpRequestDTO;
 import sad.sras.dto.auth.RegisterRequest;
-import sad.sras.dto.auth.RegisterRequestDTO;
-import sad.sras.dto.auth.VerifyOtpRequestDTO;
 import sad.sras.exception.InternalServerError;
 import sad.sras.exception.UnauthorizedException;
-import sad.sras.models.auth.CaptchaSettings;
 import sad.sras.models.auth.User;
 import sad.sras.repo.auth.UserRepository;
 import sad.sras.services.auth.AuthenticationService;
 import sad.sras.services.auth.CaptchaService;
-import sad.sras.services.auth.OtpService;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -48,8 +41,6 @@ public class AuthenticationController {
 	private final AuthenticationService authService;
 	private final CaptchaService captchaService;
 	private final UserRepository userRepo;
-	private final PasswordEncoder passwordEncoder;
-	private final OtpService otpService;
 	
 	@Auditable
 	@PostMapping("/authenticate")
@@ -157,9 +148,9 @@ public class AuthenticationController {
 				request.setMobileno(authService.decryptPassword(request.getMobileno()));
 				Optional<User> user = userRepo.findByUsername(request.getMobileno());
 
-				if(!otpService.lastGeneratedOTP(user.get().getUsername(), 0)) 
-					throw new UnauthorizedException("Not authorized");
-				otpService.generateOtp(httpRequest, request);
+//				if(!otpService.lastGeneratedOTP(user.get().getUsername(), 0)) 
+//					throw new UnauthorizedException("Not authorized");
+//				otpService.generateOtp(httpRequest, request);
 				Map<String, Object> c = captchaService.generateCaptcha();
 				map.put("message", "Successfully sent OTP");
 				
@@ -179,7 +170,7 @@ public class AuthenticationController {
 					var regis = RegisterRequest.builder().username(request.getMobileno()).mobileNo(encryptedMobile).role(USER).build();
 					authService.register(regis);
 				}
-				otpService.generateOtp(httpRequest, request);
+				//otpService.generateOtp(httpRequest, request);
 				Map<String, Object> c = captchaService.generateCaptcha();
 				map.put("message", "Successfully sent OTP");
 				
@@ -194,14 +185,14 @@ public class AuthenticationController {
 		}
 	}
 	
-	@PostMapping("/verify-otp")
-	public ResponseEntity<AuthenticationResponse> verifyotp(@Valid @RequestBody VerifyOtpRequestDTO request,
-			HttpServletRequest httpRequest) {
-		request.setMobileno(authService.decryptPassword(request.getMobileno()));
-		//if (service.verifyCaptcha(request.getUuid(), request.getCaptcha()))
-			return ResponseEntity.ok(otpService.verifyOtp(request, httpRequest));
-		//else
-		//	throw new UnauthorizedException("Inavlid Captcha");
-	}
+//	@PostMapping("/verify-otp")
+//	public ResponseEntity<AuthenticationResponse> verifyotp(@Valid @RequestBody VerifyOtpRequestDTO request,
+//			HttpServletRequest httpRequest) {
+//		request.setMobileno(authService.decryptPassword(request.getMobileno()));
+//		//if (service.verifyCaptcha(request.getUuid(), request.getCaptcha()))
+//			return ResponseEntity.ok(otpService.verifyOtp(request, httpRequest));
+//		//else
+//		//	throw new UnauthorizedException("Inavlid Captcha");
+//	}
 	
 }

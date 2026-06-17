@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.slf4j.MDC;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -17,13 +15,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import sad.sras.annotations.Auditable;
 import sad.sras.config.JwtService;
-import sad.sras.exception.ObjectNotFoundException;
 import sad.sras.logs.AuditService;
 import sad.sras.logs.Login;
 import sad.sras.logs.LoginRepository;
-import sad.sras.repo.auth.UserRepository;
 import sad.sras.services.appdata.CoreServices;
 
 @Slf4j
@@ -34,7 +29,6 @@ public class LogoutService implements LogoutSuccessHandler{
 	private final JwtService jwtService;
 	private final LoginRepository loginRepo;
 	private final CoreServices coreServices;
-	private final CookieService cookieService;
 	private final AuditService auditService;
 	
 	//@Auditable

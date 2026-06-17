@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import sad.sras.dto.appdata.OfficeRooms;
 import sad.sras.dto.appdata.RoomsDTO;
 import sad.sras.dto.master.OfficeRequest;
-import sad.sras.exception.UnauthorizedException;
 import sad.sras.models.master.Office;
 import sad.sras.models.master.Room;
 import sad.sras.models.master.RoomType;
