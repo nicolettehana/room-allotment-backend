@@ -35,4 +35,21 @@ public interface HallAllotmentRepository extends JpaRepository<HallAllotment, Lo
 	            @Param("startTime") LocalTime startTime,
 	            @Param("endTime") LocalTime endTime);
 
+	@Query("""
+	        SELECT COUNT(h)
+	        FROM HallAllotment h
+	        WHERE h.officeCode = :officeCode
+	          AND h.hallId = :hallId
+	          AND h.date = :date
+	          AND (:bookingId IS NULL OR h.bookingId <> :bookingId)
+	          AND h.startTime < :endTime
+	          AND h.endTime > :startTime
+	    """)
+	long countOverlappingBookings(
+	        @Param("officeCode") Long officeCode,
+	        @Param("hallId") Long hallId,
+	        @Param("date") LocalDate date,
+	        @Param("startTime") LocalTime startTime,
+	        @Param("endTime") LocalTime endTime,
+	        @Param("bookingId") String bookingId);
 }

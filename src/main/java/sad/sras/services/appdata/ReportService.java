@@ -111,18 +111,6 @@ public class ReportService {
         table1.addCell(rightCell);
 
         document.add(table1);
-//        Paragraph noOfVisitors= new Paragraph("No. of Visitors: " + visitors.size())
-//        		.setBold()
-//                .setFontSize(12)
-//                .setTextAlignment(TextAlignment.LEFT)
-//                .setMarginTop(0);
-//        document.add(noOfVisitors);
-//        
-//        Paragraph text= new Paragraph("Generated on: " + LocalDateTime.now().format(formatter))
-//                .setFontSize(10)
-//                .setTextAlignment(TextAlignment.LEFT)
-//                .setMarginTop(3);
-//        document.add(text);
 
         Table table;
 

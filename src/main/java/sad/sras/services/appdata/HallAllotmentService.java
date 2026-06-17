@@ -156,5 +156,6 @@ public class HallAllotmentService {
 	            })
 	            .collect(Collectors.toList());
 	}
-
+	
+	
 }

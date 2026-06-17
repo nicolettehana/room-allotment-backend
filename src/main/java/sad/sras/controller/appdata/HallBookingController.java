@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +51,7 @@ public class HallBookingController {
 
 		Map<String, Object> data = new HashMap<>();
 		data.put("detail", "Request Submitted");
-		hallBookingService.createBooking(request, user.getUsername());
+		hallBookingService.createBooking(request, user);
 	    return ResponseEntity.ok(data);
 	}
 	
@@ -65,12 +67,13 @@ public class HallBookingController {
  	        @RequestParam(defaultValue = "10") int size,
  	        @RequestParam(defaultValue = "") String search,
  	       @RequestParam(defaultValue = "0") Integer status,
+ 	      @RequestParam(defaultValue = "0") Integer all,
  	       @AuthenticationPrincipal User user
     ) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
 
-        return hallBookingService.getBookingsBetweenDates(startDate,endDate,search, user, status, pageable);
+        return hallBookingService.getBookingsBetweenDates(startDate,endDate,search, user, status, all, pageable);
     }
 	
 	@GetMapping("/pending")
@@ -120,5 +123,38 @@ public class HallBookingController {
         return hallAllotmentService.getHallAllotments(date, officeCode);
     }
 	
+	@GetMapping("/export")
+    public ResponseEntity<byte[]> generateReport(
+    		@RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate,
+ 	       @RequestParam(defaultValue = "0") Integer status,
+ 	      @RequestParam(defaultValue = "0") Integer all,
+ 	       @AuthenticationPrincipal User user) throws Exception {
+
+        byte[] fileBytes;
+        String fileName;
+        MediaType mediaType;
+        
+        fileBytes = hallBookingService.generateReport(startDate, endDate, user, status, all);
+        fileName = "visitor_report.pdf";
+        mediaType = MediaType.APPLICATION_PDF;
+
+
+        if (fileBytes == null || fileBytes.length < 100) {
+            throw new RuntimeException("Generated file is empty");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData("attachment", fileName);
+        headers.setContentType(mediaType);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(fileBytes);
+    }
 
 }

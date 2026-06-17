@@ -2,6 +2,7 @@ package sad.sras.repo.appdata;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -46,6 +47,24 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		    SELECT h
 		    FROM HallBooking h
 		    WHERE h.meetingDate BETWEEN :startDate AND :endDate
+		      AND h.appliedBy = :username
+		      AND (
+	            :status IS NULL
+	            OR h.appStatus = :status
+	          )
+		    ORDER BY h.createdDate DESC
+		""")
+		List<HallBooking> getBookingsBetweenDates(
+		        @Param("startDate") LocalDate startDate,
+		        @Param("endDate") LocalDate endDate,
+		        @Param("username") String username,
+		        @Param("status") Integer status
+		);
+	
+	@Query("""
+		    SELECT h
+		    FROM HallBooking h
+		    WHERE h.meetingDate BETWEEN :startDate AND :endDate
 			  AND (
 	            :status IS NULL
 	            OR h.appStatus = :status
@@ -67,6 +86,23 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		        @Param("status") Integer status,
 		        Pageable pageable
 		);
+	
+	@Query("""
+		    SELECT h
+		    FROM HallBooking h
+		    WHERE h.meetingDate BETWEEN :startDate AND :endDate
+			  AND (
+	            :status IS NULL
+	            OR h.appStatus = :status
+	          )
+		    ORDER BY h.createdDate DESC
+		""")
+		List<HallBooking> getAllBookingsBetweenDates(
+		        @Param("startDate") LocalDate startDate,
+		        @Param("endDate") LocalDate endDate,
+		        @Param("status") Integer status
+		);
+	
 	
 	Page<HallBooking> findAllByAppStatus(Integer appStatus, Pageable pageable);
 	
