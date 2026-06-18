@@ -75,6 +75,12 @@ public class HallBookingService {
 			booking.get().setRemarks(request.getRemarks());
 			booking.get().setContactName(request.getContactName());
 			booking.get().setContactDesignation(request.getContactDesignation());
+			if(request.getRequireNet()!=null)
+				booking.get().setRequireNet(request.getRequireNet());
+			if(request.getVc()!=null)
+				booking.get().setVc(request.getVc());
+			if(request.getRefreshments()!=null)
+				booking.get().setRefreshments(request.getRefreshments());
 			
 			if(request.getContactMobileNo()!=null)
 				booking.get().setContactMobileNo(authService.decryptPassword(request.getContactMobileNo()));

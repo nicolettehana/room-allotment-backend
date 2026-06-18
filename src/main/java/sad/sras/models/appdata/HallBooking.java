@@ -98,5 +98,14 @@ public class HallBooking {
     
     @Transient
     private String status;
+    
+    @Column(name = "require_net")
+    private Integer requireNet;
+    
+    @Column(name = "vc")
+    private Integer vc;
+    
+    @Column(name = "refreshments")
+    private Integer refreshments;
 
 }

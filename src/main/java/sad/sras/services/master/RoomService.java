@@ -1,6 +1,7 @@
 package sad.sras.services.master;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import sad.sras.dto.appdata.OfficeRooms;
 import sad.sras.dto.appdata.RoomsDTO;
 import sad.sras.dto.master.OfficeRequest;
+import sad.sras.exception.ObjectNotFoundException;
 import sad.sras.models.master.Office;
 import sad.sras.models.master.Room;
 import sad.sras.models.master.RoomType;
@@ -61,19 +63,26 @@ public class RoomService {
 			Office office = officesService.findOffice(request.getOfficeCode().longValue());
 			 
 			// Create hall type
-		    RoomType hallType = RoomType.builder()
-		            .name(request.getHallName())
-		            .office(office)
-		            .hall(true)
-		            .sortOrder(5)
-		            .build();
+		    Optional<RoomType> hallType = roomTypeRepo.findByOffice_OfficeCodeAndHallTrue(request.getOfficeCode().longValue());
 
-		    hallType = roomTypeRepo.save(hallType);
+		    RoomType f=null;
+		    if(hallType.isEmpty()) {
+				   RoomType roomType = RoomType.builder()
+				            .name("Conference Hall")
+				            .office(office)
+				            .hall(true)
+				            .sortOrder(5)
+				            .build();
+				   f=roomTypeRepo.save(roomType);
+			   }
+		    else
+		    	f=hallType.get();
+
 
 		    // Create room entry for the hall
 		    Room room = Room.builder()
 		            .name(request.getHallName())
-		            .roomType(hallType)
+		            .roomType(f)
 		            .sortOrder(5)
 		            .build();
 
