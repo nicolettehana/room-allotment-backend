@@ -32,8 +32,8 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		            OR LOWER(h.contactName) LIKE LOWER(CONCAT('%', :search, '%'))
 		            OR LOWER(h.contactDesignation) LIKE LOWER(CONCAT('%', :search, '%'))
 		          )
-		    ORDER BY h.createdDate DESC
-		""")
+		    
+		""")//ORDER BY h.meetingDate DESC
 		Page<HallBooking> searchBookingsBetweenDates(
 		        @Param("startDate") LocalDate startDate,
 		        @Param("endDate") LocalDate endDate,
@@ -52,8 +52,8 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 	            :status IS NULL
 	            OR h.appStatus = :status
 	          )
-		    ORDER BY h.createdDate DESC
-		""")
+		    
+		""")//ORDER BY h.meetingDate DESC
 		List<HallBooking> getBookingsBetweenDates(
 		        @Param("startDate") LocalDate startDate,
 		        @Param("endDate") LocalDate endDate,
@@ -77,8 +77,8 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 		            OR LOWER(h.contactName) LIKE LOWER(CONCAT('%', :search, '%'))
 		            OR LOWER(h.contactDesignation) LIKE LOWER(CONCAT('%', :search, '%'))
 		          )
-		    ORDER BY h.createdDate DESC
-		""")
+		   
+		""")// //ORDER BY h.meetingDate DESC
 		Page<HallBooking> searchAllBookingsBetweenDates(
 		        @Param("startDate") LocalDate startDate,
 		        @Param("endDate") LocalDate endDate,
@@ -95,8 +95,8 @@ public interface HallBookingRepository extends JpaRepository<HallBooking, Long>{
 	            :status IS NULL
 	            OR h.appStatus = :status
 	          )
-		    ORDER BY h.createdDate DESC
-		""")
+		    
+		""")//ORDER BY h.meetingDate DESC
 		List<HallBooking> getAllBookingsBetweenDates(
 		        @Param("startDate") LocalDate startDate,
 		        @Param("endDate") LocalDate endDate,

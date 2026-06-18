@@ -68,10 +68,16 @@ public class HallBookingController {
  	        @RequestParam(defaultValue = "") String search,
  	       @RequestParam(defaultValue = "0") Integer status,
  	      @RequestParam(defaultValue = "0") Integer all,
+ 	     @RequestParam(required = false, defaultValue = "ASC") String order,
  	       @AuthenticationPrincipal User user
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = null;
+        
+        if(order.equals("DESC"))
+        	pageable =PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "meetingDate"));
+        else
+        	pageable =PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "meetingDate"));
 
         return hallBookingService.getBookingsBetweenDates(startDate,endDate,search, user, status, all, pageable);
     }
@@ -82,7 +88,7 @@ public class HallBookingController {
  	        @RequestParam(defaultValue = "10") int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "meetingDate"));
 
         return hallBookingService.getPendingBookings(pageable);
     }
